@@ -3,26 +3,24 @@
 
 FROM registry.access.redhat.com/ubi8/ubi:8.0
 
-LABEL value="1.0"
-LABEL description="Application for container optimize"
-
-MAINTAINER Red Hat Training <training@redhat.com>
+LABEL value="1.0" description="Application for container optimize" maintainer="Red Hat Training <training@redhat.com>"
 
 # DocumentRoot for Apache
 
-ENV DOCROOT=/var/www/html 
+#ENV DOCROOT=/var/www/html 
 
-RUN   yum install -y --no-docs --disableplugin=subscription-manager httpd
-RUN   yum clean all --disableplugin=subscription-manager -y
-RUN      echo "Hello from the httpd-parent container!" > ${DOCROOT}/index.html
+RUN   yum install -y --disableplugin=subscription-manager httpd && \
+      yum clean all --disableplugin=subscription-manager -y && \
+      echo "Hello from the httpd-parent container!" > /var/www/html/index.html
+      #echo "Hello from the httpd-parent container!" > ${DOCROOT}/index.html
 
 # Allows child images
 EXPOSE 80
 
+ONBUILD COPY ./src/ /var/www/html
 # This stuff is needed to ensure a clean start
-RUN rm -rf /run/httpd 
-
-RUN mkdir /run/httpd
+RUN rm -rf /run/httpd && \
+    mkdir /run/httpd
 # Run as the rroot user
  USER root 
 # Launch httpd
